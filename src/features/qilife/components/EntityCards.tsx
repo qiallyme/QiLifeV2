@@ -12,7 +12,12 @@ export function EntityCards({ entity, records, onEdit, onArchive }: EntityCardsP
   return (
     <div className="qilife-card-grid">
       {records.map((record) => (
-        <article key={record.id} className="qilife-card entity-card">
+        <article 
+          key={record.id} 
+          className="qilife-card entity-card"
+          onClick={() => onEdit(record)}
+          style={{ cursor: "pointer" }}
+        >
           <div className="qilife-card-icon">{entity.icon}</div>
           <div className="qilife-card-title">{recordTitleForEntity(record, entity)}</div>
 
@@ -32,8 +37,20 @@ export function EntityCards({ entity, records, onEdit, onArchive }: EntityCardsP
           </dl>
 
           <div className="qilife-card-actions">
-            <button className="qilife-mini-btn" type="button" onClick={() => onEdit(record)}>Edit</button>
-            <button className="qilife-mini-btn danger" type="button" onClick={() => onArchive(record)}>Archive</button>
+            <button 
+              className="qilife-mini-btn" 
+              type="button" 
+              onClick={(e) => { e.stopPropagation(); onEdit(record); }}
+            >
+              Edit
+            </button>
+            <button 
+              className="qilife-mini-btn danger" 
+              type="button" 
+              onClick={(e) => { e.stopPropagation(); onArchive(record); }}
+            >
+              Archive
+            </button>
           </div>
         </article>
       ))}

@@ -1,7 +1,7 @@
 import { hasSupabaseConfig, supabase } from "../../../lib/supabaseClient";
 import type { QiCreateRecordInput, QiRecord, QiUpdateRecordInput } from "../types";
 
-const LOCAL_KEY = "qilife.records.v1";
+const LOCAL_KEY = "qilife.local.records.v1";
 
 function nowIso() {
   return new Date().toISOString();
@@ -27,16 +27,29 @@ function writeLocalRecords(records: QiRecord[]) {
   localStorage.setItem(LOCAL_KEY, JSON.stringify(records));
 }
 
-function usingLocalFallback() {
-  return !hasSupabaseConfig || !supabase;
+// Get active authenticated user from Supabase session
+async function getActiveUser() {
+  if (!hasSupabaseConfig || !supabase) return null;
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.user ?? null;
+  } catch (err) {
+    console.error("Auth session retrieval error:", err);
+    return null;
+  }
 }
 
-export function getStoreMode(): "supabase" | "localStorage" {
-  return usingLocalFallback() ? "localStorage" : "supabase";
+export function isSupabaseConfigured(): boolean {
+  return hasSupabaseConfig && !!supabase;
+}
+
+export function getStoreMode(hasUser: boolean): "supabase" | "localStorage" {
+  return (hasSupabaseConfig && supabase && hasUser) ? "supabase" : "localStorage";
 }
 
 export async function listRecords(entityKey: string): Promise<QiRecord[]> {
-  if (usingLocalFallback()) {
+  const user = await getActiveUser();
+  if (!user) {
     return readLocalRecords()
       .filter((record) => record.entity_key === entityKey && !record.archived_at)
       .sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
@@ -47,6 +60,7 @@ export async function listRecords(entityKey: string): Promise<QiRecord[]> {
     .from("records")
     .select("*")
     .eq("entity_key", entityKey)
+    .eq("owner_id", user.id)
     .is("archived_at", null)
     .order("updated_at", { ascending: false });
 
@@ -55,7 +69,8 @@ export async function listRecords(entityKey: string): Promise<QiRecord[]> {
 }
 
 export async function listAllRecords(): Promise<QiRecord[]> {
-  if (usingLocalFallback()) {
+  const user = await getActiveUser();
+  if (!user) {
     return readLocalRecords()
       .filter((record) => !record.archived_at)
       .sort((a, b) => String(b.updated_at).localeCompare(String(a.updated_at)));
@@ -65,6 +80,7 @@ export async function listAllRecords(): Promise<QiRecord[]> {
     .schema("qilife")
     .from("records")
     .select("*")
+    .eq("owner_id", user.id)
     .is("archived_at", null)
     .order("updated_at", { ascending: false });
 
@@ -73,7 +89,8 @@ export async function listAllRecords(): Promise<QiRecord[]> {
 }
 
 export async function createRecord(input: QiCreateRecordInput): Promise<QiRecord> {
-  if (usingLocalFallback()) {
+  const user = await getActiveUser();
+  if (!user) {
     const records = readLocalRecords();
     const record: QiRecord = {
       id: makeId(),
@@ -96,6 +113,7 @@ export async function createRecord(input: QiCreateRecordInput): Promise<QiRecord
     .schema("qilife")
     .from("records")
     .insert({
+      owner_id: user.id,
       entity_key: input.entity_key,
       title: input.title,
       status: input.status ?? null,
@@ -111,7 +129,8 @@ export async function createRecord(input: QiCreateRecordInput): Promise<QiRecord
 }
 
 export async function updateRecord(id: string, patch: QiUpdateRecordInput): Promise<QiRecord> {
-  if (usingLocalFallback()) {
+  const user = await getActiveUser();
+  if (!user) {
     const records = readLocalRecords();
     let updated: QiRecord | null = null;
     const next = records.map((record) => {
@@ -134,6 +153,7 @@ export async function updateRecord(id: string, patch: QiUpdateRecordInput): Prom
     .from("records")
     .update(patch)
     .eq("id", id)
+    .eq("owner_id", user.id)
     .select("*")
     .single();
 
@@ -142,7 +162,8 @@ export async function updateRecord(id: string, patch: QiUpdateRecordInput): Prom
 }
 
 export async function archiveRecord(id: string): Promise<void> {
-  if (usingLocalFallback()) {
+  const user = await getActiveUser();
+  if (!user) {
     const records = readLocalRecords();
     writeLocalRecords(
       records.map((record) =>
@@ -156,12 +177,16 @@ export async function archiveRecord(id: string): Promise<void> {
     .schema("qilife")
     .from("records")
     .update({ archived_at: nowIso() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("owner_id", user.id);
 
   if (error) throw error;
 }
 
 export async function seedDemoData(): Promise<void> {
+  const user = await getActiveUser();
+  if (user) return; // Do not seed data in Supabase mode
+
   const existing = await listAllRecords();
   if (existing.length > 0) return;
 

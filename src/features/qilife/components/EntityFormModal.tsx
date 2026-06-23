@@ -8,6 +8,7 @@ interface EntityFormModalProps {
   mode: "create" | "edit";
   onClose: () => void;
   onSubmit: (values: Record<string, unknown>, record?: QiRecord) => Promise<void>;
+  onArchive?: (record: QiRecord) => Promise<void>;
 }
 
 function defaultValueForField(field: QiField, record?: QiRecord) {
@@ -26,9 +27,9 @@ function defaultValueForField(field: QiField, record?: QiRecord) {
 function coerceValue(field: QiField, value: string | boolean): unknown {
   if (field.type === "checkbox") return Boolean(value);
   if (field.type === "number" || field.type === "currency") {
-    if (value === "") return "";
+    if (value === "") return null;
     const num = Number(value);
-    return Number.isNaN(num) ? "" : num;
+    return Number.isNaN(num) ? null : num;
   }
   if (field.type === "tags") {
     return String(value)
@@ -36,16 +37,28 @@ function coerceValue(field: QiField, value: string | boolean): unknown {
       .map((part) => part.trim())
       .filter(Boolean);
   }
-  return value;
+  return value === "" ? null : value;
 }
 
-export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: EntityFormModalProps) {
+export function EntityFormModal({ 
+  entity, 
+  record, 
+  mode, 
+  onClose, 
+  onSubmit, 
+  onArchive 
+}: EntityFormModalProps) {
   const initialValues = useMemo(() => {
-    return Object.fromEntries(entity.fields.map((field) => [field.key, defaultValueForField(field, record)]));
+    return Object.fromEntries(
+      entity.fields.map((field) => [field.key, defaultValueForField(field, record)])
+    );
   }, [entity.fields, record]);
 
-  const [values, setValues] = useState<Record<string, string | boolean>>(initialValues as Record<string, string | boolean>);
+  const [values, setValues] = useState<Record<string, string | boolean>>(
+    initialValues as Record<string, string | boolean>
+  );
   const [saving, setSaving] = useState(false);
+  const [archiving, setArchiving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function setField(field: QiField, value: string | boolean) {
@@ -54,10 +67,13 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: Ent
 
   async function submit() {
     setError(null);
-    const primaryField = entity.fields.find((field) => field.primary) || entity.fields[0];
-    if (primaryField?.required && !String(values[primaryField.key] || "").trim()) {
-      setError(`${primaryField.label} is required.`);
-      return;
+    
+    // Check required fields
+    for (const field of entity.fields) {
+      if (field.required && !String(values[field.key] ?? "").trim()) {
+        setError(`${field.label} is required.`);
+        return;
+      }
     }
 
     const coerced = Object.fromEntries(
@@ -73,6 +89,21 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: Ent
     }
   }
 
+  async function handleArchiveClick() {
+    if (!record || !onArchive) return;
+    const ok = window.confirm(`Are you sure you want to archive "${record.title}"?`);
+    if (!ok) return;
+
+    try {
+      setArchiving(true);
+      setError(null);
+      await onArchive(record);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Archive failed.");
+      setArchiving(false);
+    }
+  }
+
   return (
     <div className="qilife-modal-backdrop">
       <div className="qilife-modal large">
@@ -81,7 +112,14 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: Ent
             <div className="qilife-eyebrow">{mode === "create" ? "CREATE" : "EDIT"}</div>
             <h2>{mode === "create" ? `New ${entity.label}` : `Edit ${entity.label}`}</h2>
           </div>
-          <button className="qilife-mini-btn" type="button" onClick={onClose}>Close</button>
+          <button 
+            className="qilife-mini-btn" 
+            type="button" 
+            onClick={onClose}
+            disabled={saving || archiving}
+          >
+            Close
+          </button>
         </div>
 
         {error && <div className="qilife-error compact">{error}</div>}
@@ -96,10 +134,15 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: Ent
                   rows={5}
                   value={String(values[field.key] ?? "")}
                   placeholder={field.placeholder}
+                  disabled={saving || archiving}
                   onChange={(event) => setField(field, event.target.value)}
                 />
               ) : field.type === "enum" ? (
-                <select value={String(values[field.key] ?? "")} onChange={(event) => setField(field, event.target.value)}>
+                <select 
+                  value={String(values[field.key] ?? "")} 
+                  disabled={saving || archiving}
+                  onChange={(event) => setField(field, event.target.value)}
+                >
                   <option value="">—</option>
                   {(field.options || []).map((option) => (
                     <option key={option} value={option}>{option}</option>
@@ -110,15 +153,27 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: Ent
                   <input
                     type="checkbox"
                     checked={Boolean(values[field.key])}
+                    disabled={saving || archiving}
                     onChange={(event) => setField(field, event.target.checked)}
                   />
                   <span>Yes</span>
                 </span>
               ) : (
                 <input
-                  type={field.type === "date" ? "date" : field.type === "datetime" ? "datetime-local" : field.type === "currency" || field.type === "number" ? "number" : field.type === "url" ? "url" : "text"}
+                  type={
+                    field.type === "date" 
+                      ? "date" 
+                      : field.type === "datetime" 
+                        ? "datetime-local" 
+                        : field.type === "currency" || field.type === "number" 
+                          ? "number" 
+                          : field.type === "url" 
+                            ? "url" 
+                            : "text"
+                  }
                   value={String(values[field.key] ?? "")}
                   placeholder={field.placeholder}
+                  disabled={saving || archiving}
                   onChange={(event) => setField(field, event.target.value)}
                 />
               )}
@@ -126,11 +181,37 @@ export function EntityFormModal({ entity, record, mode, onClose, onSubmit }: Ent
           ))}
         </div>
 
-        <div className="qilife-actions end modal-actions">
-          <button className="qilife-btn" type="button" onClick={onClose}>Cancel</button>
-          <button className="qilife-btn primary" type="button" onClick={submit} disabled={saving}>
-            {saving ? "Saving..." : "Save"}
-          </button>
+        <div className="qilife-actions wrap modal-actions" style={{ justifyContent: "space-between", marginTop: "24px" }}>
+          <div>
+            {mode === "edit" && onArchive && (
+              <button
+                className="qilife-btn danger"
+                type="button"
+                onClick={handleArchiveClick}
+                disabled={saving || archiving}
+              >
+                {archiving ? "Archiving..." : "Archive Record"}
+              </button>
+            )}
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button 
+              className="qilife-btn" 
+              type="button" 
+              onClick={onClose}
+              disabled={saving || archiving}
+            >
+              Cancel
+            </button>
+            <button 
+              className="qilife-btn primary" 
+              type="button" 
+              onClick={submit} 
+              disabled={saving || archiving}
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { listAllRecords } from "../services/qilifeStore";
 import type { QiRecord } from "../types";
 
 interface HomeDashboardProps {
-  onOpenEntity: (entityKey: string) => void;
+  onOpenEntity: (entityKey: string, record?: QiRecord) => void;
   refreshToken: number;
 }
 
@@ -95,7 +95,12 @@ export function HomeDashboard({ onOpenEntity, refreshToken }: HomeDashboardProps
           ) : (
             <div className="qilife-list">
               {recent.map((record) => (
-                <button key={record.id} className="qilife-list-row" type="button" onClick={() => onOpenEntity(record.entity_key)}>
+                <button 
+                  key={record.id} 
+                  className="qilife-list-row" 
+                  type="button" 
+                  onClick={() => onOpenEntity(record.entity_key, record)}
+                >
                   <span>{entityRegistry[record.entity_key]?.icon || "•"}</span>
                   <div>
                     <strong>{record.title}</strong>

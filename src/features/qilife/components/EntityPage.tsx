@@ -9,9 +9,11 @@ import { mapFormValuesToRecord } from "../utils/recordValues";
 interface EntityPageProps {
   entity: QiEntityDefinition;
   refreshToken: number;
+  autoEditRecord?: QiRecord | null;
+  onClearAutoEdit?: () => void;
 }
 
-export function EntityPage({ entity, refreshToken }: EntityPageProps) {
+export function EntityPage({ entity, refreshToken, autoEditRecord, onClearAutoEdit }: EntityPageProps) {
   const [records, setRecords] = useState<QiRecord[]>([]);
   const [layout, setLayout] = useState<QiLayout>(entity.defaultLayout);
   const [loading, setLoading] = useState(true);
@@ -31,6 +33,14 @@ export function EntityPage({ entity, refreshToken }: EntityPageProps) {
       setLoading(false);
     }
   }
+
+  // Trigger modal when an autoEditRecord is supplied from parent (e.g. recent dashboard click)
+  useEffect(() => {
+    if (autoEditRecord && autoEditRecord.entity_key === entity.key) {
+      setModalState({ mode: "edit", record: autoEditRecord });
+      if (onClearAutoEdit) onClearAutoEdit();
+    }
+  }, [entity.key, autoEditRecord, onClearAutoEdit]);
 
   useEffect(() => {
     setLayout(entity.defaultLayout);
@@ -59,10 +69,13 @@ export function EntityPage({ entity, refreshToken }: EntityPageProps) {
     await load();
   }
 
-  async function handleArchive(record: QiRecord) {
-    const ok = window.confirm(`Archive "${record.title}"?`);
-    if (!ok) return;
+  async function handleArchive(record: QiRecord, skipConfirm = false) {
+    if (!skipConfirm) {
+      const ok = window.confirm(`Archive "${record.title}"?`);
+      if (!ok) return;
+    }
     await archiveRecord(record.id);
+    setModalState(null);
     await load();
   }
 
@@ -131,6 +144,7 @@ export function EntityPage({ entity, refreshToken }: EntityPageProps) {
           mode={modalState.mode}
           onClose={() => setModalState(null)}
           onSubmit={handleFormSubmit}
+          onArchive={(rec) => handleArchive(rec, true)}
         />
       )}
     </div>

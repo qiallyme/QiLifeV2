@@ -23,7 +23,11 @@ export function EntityTable({ entity, records, onEdit, onArchive }: EntityTableP
 
         <tbody>
           {records.map((record) => (
-            <tr key={record.id}>
+            <tr 
+              key={record.id} 
+              onClick={() => onEdit(record)} 
+              style={{ cursor: "pointer" }}
+            >
               {entity.columns.map((column, index) => {
                 const field = entity.fields.find((candidate) => candidate.key === column);
                 const value = getRecordValue(record, column);
@@ -35,8 +39,20 @@ export function EntityTable({ entity, records, onEdit, onArchive }: EntityTableP
               })}
 
               <td className="qilife-row-actions">
-                <button className="qilife-mini-btn" type="button" onClick={() => onEdit(record)}>Edit</button>
-                <button className="qilife-mini-btn danger" type="button" onClick={() => onArchive(record)}>Archive</button>
+                <button 
+                  className="qilife-mini-btn" 
+                  type="button" 
+                  onClick={(e) => { e.stopPropagation(); onEdit(record); }}
+                >
+                  Edit
+                </button>
+                <button 
+                  className="qilife-mini-btn danger" 
+                  type="button" 
+                  onClick={(e) => { e.stopPropagation(); onArchive(record); }}
+                >
+                  Archive
+                </button>
               </td>
             </tr>
           ))}

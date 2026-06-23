@@ -43,6 +43,7 @@ export interface QiEntityDefinition {
 
 export interface QiRecord {
   id: string;
+  owner_id?: string;
   entity_key: string;
   title: string;
   status?: string | null;
