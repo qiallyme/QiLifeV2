@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="128" fill="#0c0f0d"/>
+  <rect width="512" height="512" rx="128" fill="#09090f"/>
   <!-- Glowing circular background outline -->
-  <circle cx="256" cy="256" r="180" fill="none" stroke="#b4e6c5" stroke-width="16" opacity="0.15"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="#c084fc" stroke-width="16" opacity="0.15"/>
   <!-- The Qi/Life leaf motif -->
-  <path d="M256 110 C330 110 390 170 390 256 C390 342 330 402 256 402 C182 402 122 342 122 256 C122 170 182 110 256 110 Z" fill="none" stroke="#b4e6c5" stroke-width="24" stroke-linecap="round"/>
+  <path d="M256 110 C330 110 390 170 390 256 C390 342 330 402 256 402 C182 402 122 342 122 256 C122 170 182 110 256 110 Z" fill="none" stroke="#c084fc" stroke-width="24" stroke-linecap="round"/>
   <!-- Inner core sprout -->
-  <path d="M256 190 C280 190 300 210 300 256 C300 295 280 322 256 322 C232 322 212 295 212 256 C212 210 232 190 256 190 Z" fill="#b4e6c5"/>
+  <path d="M256 190 C280 190 300 210 300 256 C300 295 280 322 256 322 C232 322 212 295 212 256 C212 210 232 190 256 190 Z" fill="#c084fc"/>
   <!-- Glowing dot -->
-  <circle cx="256" cy="150" r="14" fill="#b4e6c5"/>
+  <circle cx="256" cy="150" r="14" fill="#c084fc"/>
 </svg>
