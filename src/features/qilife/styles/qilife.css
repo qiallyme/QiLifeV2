@@ -1,0 +1,428 @@
+:root {
+  color-scheme: dark;
+  --qi-bg: #0c0f0d;
+  --qi-bg-2: #111613;
+  --qi-bg-3: #171d1a;
+  --qi-panel: #151a18;
+  --qi-panel-2: #0f1311;
+  --qi-border: rgba(255, 255, 255, 0.09);
+  --qi-border-strong: rgba(255, 255, 255, 0.15);
+  --qi-text: #f1f5f2;
+  --qi-muted: #a7b4ac;
+  --qi-faint: #748078;
+  --qi-green: #b4e6c5;
+  --qi-green-2: #89b99b;
+  --qi-green-dark: #1f3a2c;
+  --qi-danger: #ffb4a8;
+  --qi-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--qi-bg);
+  color: var(--qi-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button, input, textarea, select { font: inherit; }
+button { color: inherit; }
+
+.qilife-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(circle at top left, rgba(180, 230, 197, 0.08), transparent 34%), var(--qi-bg);
+  color: var(--qi-text);
+}
+
+.qilife-topbar {
+  min-height: 72px;
+  border-bottom: 1px solid var(--qi-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  background: rgba(11, 14, 13, 0.92);
+  backdrop-filter: blur(14px);
+  flex-shrink: 0;
+}
+
+.qilife-topbar h1,
+.qilife-page h2,
+.qilife-modal h2 {
+  margin: 0;
+  font-size: 24px;
+  letter-spacing: -0.045em;
+  line-height: 1.1;
+}
+
+.qilife-page h3,
+.qilife-panel h3 {
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.qilife-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--qi-green-2);
+  font-weight: 800;
+  margin-bottom: 5px;
+}
+
+.qilife-body { flex: 1; min-height: 0; display: flex; }
+
+.qilife-sidebar {
+  width: 250px;
+  flex-shrink: 0;
+  background: rgba(11, 14, 13, 0.95);
+  border-right: 1px solid var(--qi-border);
+  padding: 16px 12px;
+  overflow-y: auto;
+}
+
+.qilife-brand {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+  background: transparent;
+  text-align: left;
+}
+.qilife-brand:hover { background: rgba(255, 255, 255, 0.05); }
+.qilife-brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--qi-green-dark);
+  color: var(--qi-green);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 1px rgba(180, 230, 197, 0.18);
+}
+.qilife-brand-title { font-size: 15px; font-weight: 850; }
+.qilife-brand-subtitle { font-size: 11px; color: var(--qi-faint); }
+
+.qilife-nav-group { margin-bottom: 18px; }
+.qilife-nav-group-label {
+  padding: 8px 10px;
+  font-size: 10px;
+  font-weight: 850;
+  color: #68736c;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.qilife-nav-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #cbd5ce;
+  text-align: left;
+  padding: 9px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.qilife-nav-item:hover { background: rgba(255, 255, 255, 0.06); }
+.qilife-nav-item.active { background: var(--qi-green-dark); color: var(--qi-green); }
+.qilife-nav-icon { width: 20px; display: inline-flex; justify-content: center; }
+
+.qilife-content { flex: 1; min-width: 0; overflow-y: auto; }
+.qilife-page { padding: 24px; }
+
+.qilife-hero {
+  border: 1px solid var(--qi-border);
+  background: linear-gradient(135deg, #142019, #0f1311);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 18px;
+  box-shadow: inset 0 0 0 1px rgba(180, 230, 197, 0.02);
+}
+.qilife-hero p,
+.qilife-page-header p { color: var(--qi-muted); margin: 8px 0 0; max-width: 760px; }
+
+.qilife-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+.qilife-title-icon { margin-right: 10px; }
+.qilife-actions,
+.qilife-topbar-actions { display: flex; align-items: center; gap: 8px; }
+.qilife-actions.end { justify-content: flex-end; }
+.qilife-actions.wrap { flex-wrap: wrap; justify-content: flex-end; }
+
+.qilife-btn,
+.qilife-mini-btn {
+  border: 1px solid var(--qi-border-strong);
+  background: var(--qi-bg-3);
+  color: var(--qi-text);
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: border-color 120ms ease, transform 120ms ease, background 120ms ease;
+}
+.qilife-btn:hover,
+.qilife-mini-btn:hover { border-color: var(--qi-green-2); }
+.qilife-btn:active,
+.qilife-mini-btn:active { transform: translateY(1px); }
+.qilife-mini-btn { padding: 6px 10px; font-size: 12px; }
+.qilife-mini-btn.danger { color: var(--qi-danger); }
+.qilife-btn.primary { background: var(--qi-green); color: #07100b; border-color: var(--qi-green); }
+.qilife-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.qilife-store-pill {
+  font-size: 12px;
+  border: 1px solid var(--qi-border);
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: var(--qi-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+.qilife-store-pill.online { color: var(--qi-green); border-color: rgba(180, 230, 197, 0.32); }
+.qilife-store-pill.local { color: #ffd28a; border-color: rgba(255, 210, 138, 0.3); }
+
+.qilife-search,
+.qilife-label input,
+.qilife-label textarea,
+.qilife-label select {
+  border-radius: 10px;
+  border: 1px solid var(--qi-border-strong);
+  background: #0b0e0d;
+  color: var(--qi-text);
+  padding: 10px;
+  outline: none;
+}
+.qilife-search:focus,
+.qilife-label input:focus,
+.qilife-label textarea:focus,
+.qilife-label select:focus { border-color: var(--qi-green-2); }
+.qilife-search { min-width: min(280px, 100%); }
+
+.qilife-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.qilife-stat-card {
+  border: 1px solid var(--qi-border);
+  background: var(--qi-panel);
+  border-radius: 16px;
+  padding: 16px;
+}
+.qilife-stat-card span {
+  display: block;
+  color: var(--qi-faint);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+}
+.qilife-stat-card strong { display: block; margin-top: 6px; font-size: 28px; letter-spacing: -0.04em; }
+
+.qilife-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+.qilife-card {
+  text-align: left;
+  border: 1px solid var(--qi-border);
+  background: var(--qi-panel);
+  color: inherit;
+  border-radius: 16px;
+  padding: 18px;
+  cursor: pointer;
+  transition: border-color 120ms ease, transform 120ms ease, background 120ms ease;
+}
+button.qilife-card:hover,
+.entity-card:hover { border-color: var(--qi-green-2); transform: translateY(-1px); }
+.qilife-card-icon { font-size: 24px; margin-bottom: 10px; }
+.qilife-card-title { font-size: 16px; font-weight: 850; margin-bottom: 6px; letter-spacing: -0.02em; }
+.qilife-card-desc { font-size: 13px; color: var(--qi-muted); line-height: 1.45; }
+.qilife-card-meta {
+  margin-top: 14px;
+  font-size: 11px;
+  color: var(--qi-green-2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 850;
+}
+.qilife-card-fields { margin: 12px 0 0; display: grid; gap: 8px; }
+.qilife-card-fields div { display: grid; grid-template-columns: 90px 1fr; gap: 8px; }
+.qilife-card-fields dt { color: var(--qi-faint); font-size: 12px; }
+.qilife-card-fields dd { margin: 0; color: var(--qi-text); font-size: 12px; overflow-wrap: anywhere; }
+.qilife-card-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+.qilife-split-section {
+  display: grid;
+  grid-template-columns: 1.3fr 0.7fr;
+  gap: 14px;
+  margin-top: 18px;
+}
+.qilife-panel {
+  border: 1px solid var(--qi-border);
+  background: rgba(21, 26, 24, 0.75);
+  border-radius: 16px;
+  padding: 16px;
+}
+.qilife-panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.qilife-list { display: grid; gap: 8px; }
+.qilife-list-row {
+  border: 1px solid var(--qi-border);
+  background: var(--qi-panel-2);
+  color: var(--qi-text);
+  padding: 10px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.qilife-list-row:hover { border-color: var(--qi-green-2); }
+.qilife-list-row strong { display: block; }
+.qilife-list-row small { color: var(--qi-faint); }
+.qilife-chip-cloud { display: flex; gap: 8px; flex-wrap: wrap; }
+.qilife-chip-cloud button {
+  border: 1px solid var(--qi-border);
+  background: var(--qi-panel-2);
+  color: var(--qi-text);
+  border-radius: 999px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+.qilife-chip-cloud button:hover { border-color: var(--qi-green-2); }
+
+.qilife-subbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--qi-faint);
+  font-size: 12px;
+  margin-bottom: 14px;
+}
+.qilife-subbar span {
+  border: 1px solid var(--qi-border);
+  border-radius: 999px;
+  padding: 5px 9px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.qilife-table-wrap {
+  border: 1px solid var(--qi-border);
+  border-radius: 14px;
+  overflow: auto;
+  background: var(--qi-panel);
+}
+.qilife-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+.qilife-table th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--qi-faint);
+  padding: 12px;
+  background: var(--qi-panel-2);
+  white-space: nowrap;
+}
+.qilife-table td {
+  padding: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: #e4ebe6;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.qilife-table tr:hover td { background: rgba(255, 255, 255, 0.025); }
+.qilife-primary-cell { font-weight: 800; color: var(--qi-text) !important; }
+.qilife-action-col { text-align: right !important; }
+.qilife-row-actions { text-align: right; white-space: nowrap; display: flex; justify-content: flex-end; gap: 6px; }
+
+.qilife-empty,
+.qilife-error {
+  padding: 28px;
+  border: 1px dashed var(--qi-border-strong);
+  border-radius: 14px;
+  color: var(--qi-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+.qilife-empty.compact,
+.qilife-error.compact { padding: 12px; margin-bottom: 12px; }
+.qilife-error { color: var(--qi-danger); border-color: rgba(255, 180, 168, 0.3); }
+
+.qilife-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.68);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+.qilife-modal {
+  width: min(600px, 100%);
+  max-height: min(760px, calc(100vh - 40px));
+  overflow-y: auto;
+  background: var(--qi-bg-2);
+  border: 1px solid var(--qi-border-strong);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: var(--qi-shadow);
+}
+.qilife-modal.large { width: min(860px, 100%); }
+.qilife-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.qilife-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--qi-muted);
+  font-weight: 800;
+}
+.qilife-label input,
+.qilife-label textarea,
+.qilife-label select { width: 100%; color: var(--qi-text); font-weight: 500; }
+.qilife-label textarea { resize: vertical; }
+.qilife-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+.qilife-label.wide { grid-column: 1 / -1; }
+.qilife-checkbox-row { display: flex; align-items: center; gap: 8px; padding: 10px 0; }
+.qilife-checkbox-row input { width: auto; }
+.modal-actions { margin-top: 8px; }
+
+@media (max-width: 900px) {
+  .qilife-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qilife-split-section { grid-template-columns: 1fr; }
+  .qilife-page-header { align-items: stretch; flex-direction: column; }
+}
+
+@media (max-width: 760px) {
+  .qilife-app { height: auto; min-height: 100vh; }
+  .qilife-body { flex-direction: column; }
+  .qilife-sidebar { width: 100%; max-height: none; border-right: 0; border-bottom: 1px solid var(--qi-border); }
+  .qilife-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .qilife-topbar { align-items: flex-start; flex-direction: column; }
+  .qilife-form-grid { grid-template-columns: 1fr; }
+  .qilife-stat-grid { grid-template-columns: 1fr 1fr; }
+}
